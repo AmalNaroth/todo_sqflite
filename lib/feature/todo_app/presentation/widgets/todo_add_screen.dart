@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:todo_sqflite/feature/todo_app/utils/textController.dart';
 
 class TodoAddScreen extends StatelessWidget {
-  const TodoAddScreen({super.key});
+  TextEditingController title;
+  TextEditingController description;
+  TodoAddScreen({super.key,
+  required this.title,
+  required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -10,8 +15,9 @@ class TodoAddScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextFormField(
+            controller: title,
             decoration: const InputDecoration(
-              border:  UnderlineInputBorder(),
+              border: UnderlineInputBorder(),
               hintText: "Title",
             ),
           ),
@@ -19,6 +25,7 @@ class TodoAddScreen extends StatelessWidget {
             height: 10,
           ),
           TextFormField(
+            controller: description,
             decoration: InputDecoration(
               border: UnderlineInputBorder(),
               hintText: "Description",

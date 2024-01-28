@@ -8,9 +8,9 @@ class TodoModel {
   String description;
   bool status;
   TodoModel({
-    required this.id,
+     required this.id,
     required this.description,
-    required this.status,
+     this.status = false,
     required this.title,
   });
 
@@ -27,7 +27,7 @@ class TodoModel {
       "id": id,
       "title": title,
       "description": description,
-      "status": status
+      "status": status ? 1 :0 ,
     };
   }
 
@@ -36,6 +36,6 @@ class TodoModel {
         id: data["id"],
         title: data["title"],
         description: data["description"],
-        status: data["status"]);
+        status: data["status"] == 1);
   }
 }

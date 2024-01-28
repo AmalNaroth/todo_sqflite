@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo_sqflite/feature/todo_app/application/bloc/todo_bloc.dart';
+import 'package:todo_sqflite/feature/todo_app/domain/todo_model.dart';
 import 'package:todo_sqflite/feature/todo_app/presentation/widgets/todo_add_screen.dart';
 import 'package:todo_sqflite/feature/todo_app/presentation/widgets/todo_details_screen.dart';
+import 'package:todo_sqflite/feature/todo_app/utils/textController.dart';
 
 class TodolistScreen extends StatelessWidget {
   final Future<Database> database;
@@ -31,7 +33,7 @@ class TodolistScreen extends StatelessWidget {
                 child: Text(state.message),
               );
             } else if (state is TodoLoadedState) {
-              return _dataList();
+              return _dataList(data: state.todoListData);
             } else {
               return const SizedBox();
             }
@@ -53,11 +55,25 @@ class TodolistScreen extends StatelessWidget {
                   builder: (context) {
                     return AlertDialog(
                       title: const Text("Add new todo"),
-                      content: const TodoAddScreen(),
+                      content: TodoAddScreen(
+                        description: TextControllers.addDescriptionController,
+                        title: TextControllers.addTitleController,
+                      ),
                       actions: [
                         Center(
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              context.read<TodoBloc>().add(
+                                    CreateNewTodoEvent(
+                                      modelData: TodoModel.generate(
+                                          description: TextControllers
+                                              .addDescriptionController.text,
+                                          title: TextControllers
+                                              .addTitleController.text,
+                                              status: false),
+                                    ),
+                                  );
+                            },
                             child: const Text("Add"),
                           ),
                         )
@@ -72,64 +88,70 @@ class TodolistScreen extends StatelessWidget {
       ),
     );
   }
-  Widget _dataList(){
+
+  Widget _dataList({required List<TodoModel> data}) {
     return ListView.separated(
-              padding: const EdgeInsets.all(15),
-              itemBuilder: (context, index) {
-                return Card(
-                  child: ListTile(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return const TodoDetailsScreen();
-                        },
-                      );
-                    },
-                    title: const Text("Todo name"),
-                    subtitle: const Text("Todo detatils"),
-                    trailing: PopupMenuButton(
-                      itemBuilder: (context) {
-                        return [
-                          PopupMenuItem(
-                            value: 0,
-                            child: const Text("Edit"),
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text("Update Todo"),
-                                    content: const TodoAddScreen(),
-                                    actions: [
-                                      Center(
-                                        child: ElevatedButton(
-                                          onPressed: () {},
-                                          child: const Text("Add"),
-                                        ),
-                                      )
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          PopupMenuItem(
-                            value: 1,
-                            child: const Text("Delate"),
-                            onTap: () {},
-                          )
-                        ];
+        padding: const EdgeInsets.all(15),
+        itemBuilder: (context, index) {
+        
+          return Card(
+            child: ListTile(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return const TodoDetailsScreen();
+                  },
+                );
+              },
+              title: Text(data[index].title),
+              subtitle: Text(data[index].description),
+              trailing: PopupMenuButton(
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      value: 0,
+                      child: const Text("Edit"),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text("Update Todo"),
+                              content: TodoAddScreen(
+                                title: TextControllers.updateTitleController,
+                                description:
+                                    TextControllers.updateDescriptionController,
+                              ),
+                              actions: [
+                                Center(
+                                  child: ElevatedButton(
+                                    onPressed: () {},
+                                    child: const Text("Add"),
+                                  ),
+                                )
+                              ],
+                            );
+                          },
+                        );
                       },
                     ),
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) {
-                return const SizedBox(
-                  height: 05,
-                );
-              },
-              itemCount: 10);
+                    PopupMenuItem(
+                      value: 1,
+                      child: const Text("Delate"),
+                      onTap: () {},
+                    )
+                  ];
+                },
+              ),
+            ),
+          );
+        },
+        separatorBuilder: (context, index) {
+          return const SizedBox(
+            height: 05,
+          );
+        },
+        itemCount: data.length);
   }
 }

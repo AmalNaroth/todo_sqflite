@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo_sqflite/feature/todo_app/domain/todo_model.dart';
@@ -12,6 +13,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   TodoBloc(this.database, this.databaseExist) : super(TodoInitialState()) {
     on<CreateNewTodoEvent>(
       (event, emit) async {
+       // debugPrint("workingg!!!!!!!!!!!!");
         try {
           emit(
             TodoLoadingState(),
@@ -21,12 +23,15 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
               TodoErrorState(message: "Database does not exist"),
             );
 
+           // print(event.modelData.description);
+
             await addData(event.modelData);
             final List<TodoModel> data = await readData();
             emit(
               TodoLoadedState(todoListData: data),
             );
           }
+         // debugPrint("Complete!!!!!!");
         } catch (e) {
           emit(
             TodoErrorState(
@@ -85,8 +90,6 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
 
   Future<void> deleteData(int id) async {
     final Database db = await database;
-    await db.delete('todos',
-    where: 'id = ?',
-    whereArgs: [id]);
+    await db.delete('todos', where: 'id = ?', whereArgs: [id]);
   }
 }

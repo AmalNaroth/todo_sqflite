@@ -11,7 +11,7 @@ void main() async {
     join(await getDatabasesPath(), "todo_database.db"),
     onCreate: (db, version) {
       return db.execute(
-          "CREATE TABLE todos(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, status INTEGER)");
+          "CREATE TABLE todos(id TEXT, title TEXT, description TEXT, status INTEGER)");
     },
     version: 1,
   );
