@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_sqflite/feature/todo_app/presentation/widgets/todo_add_screen.dart';
+import 'package:todo_sqflite/feature/todo_app/presentation/widgets/todo_details_screen.dart';
 
 class TodolistScreen extends StatelessWidget {
   const TodolistScreen({super.key});
@@ -13,6 +14,14 @@ class TodolistScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             return Card(
               child: ListTile(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return const TodoDetailsScreen();
+                    },
+                  );
+                },
                 title: const Text("Todo name"),
                 subtitle: const Text("Todo detatils"),
                 trailing: PopupMenuButton(
@@ -21,7 +30,25 @@ class TodolistScreen extends StatelessWidget {
                       PopupMenuItem(
                         value: 0,
                         child: const Text("Edit"),
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Update Todo"),
+                                content: const TodoAddScreen(),
+                                actions: [
+                                  Center(
+                                    child: ElevatedButton(
+                                      onPressed: () {},
+                                      child: const Text("Add"),
+                                    ),
+                                  )
+                                ],
+                              );
+                            },
+                          );
+                        },
                       ),
                       PopupMenuItem(
                         value: 1,
