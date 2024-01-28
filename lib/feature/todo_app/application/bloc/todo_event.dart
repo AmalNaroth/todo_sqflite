@@ -9,12 +9,21 @@ class InitialTodoEvent extends TodoEvent {}
 
 //create todo
 
-class CreateNewTodoEvent extends TodoEvent {}
+class CreateNewTodoEvent extends TodoEvent {
+  TodoModel modelData;
+  CreateNewTodoEvent({required this.modelData});
+}
 
 //update todo
 
-class UpdateTodoEvent extends TodoEvent {}
+class UpdateTodoEvent extends TodoEvent {
+  TodoModel modelData;
+  UpdateTodoEvent({required this.modelData});
+}
 
 //delate todo
 
-class DeleteTodoEvent extends TodoEvent {}
+class DeleteTodoEvent extends TodoEvent {
+  String id;
+  DeleteTodoEvent({required this.id});
+}
