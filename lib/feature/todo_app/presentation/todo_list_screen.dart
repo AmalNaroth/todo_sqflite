@@ -39,7 +39,13 @@ class _TodolistScreenState extends State<TodolistScreen> {
               child: Text(state.message),
             );
           } else if (state is TodoLoadedState) {
-            return _dataList(data: state.todoListData);
+            if (state.todoListData.isEmpty) {
+              return const Center(
+                child: Text("List is empty"),
+              );
+            } else {
+              return _dataList(data: state.todoListData);
+            }
           } else {
             return const SizedBox();
           }
@@ -105,8 +111,16 @@ class _TodolistScreenState extends State<TodolistScreen> {
               onTap: () {
                 showModalBottomSheet(
                   context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
                   builder: (context) {
-                    return const TodoDetailsScreen();
+                    return TodoDetailsScreen(
+                      data: data[index],
+                    );
                   },
                 );
               },

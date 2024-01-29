@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:todo_sqflite/feature/todo_app/domain/todo_model.dart';
 
 class TodoDetailsScreen extends StatelessWidget {
-  const TodoDetailsScreen({
-    super.key,
-  });
+  final TodoModel data;
+  const TodoDetailsScreen({super.key,
+  required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -18,30 +19,24 @@ class TodoDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Center(
+          const Center(
             child: Text(
-              'Title',
+              'Todo',
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 8.0,
           ),
           Text(
-            'Title',
+            data.title,
           ),
-          SizedBox(
+          const SizedBox(
             height: 8.0,
           ),
           Text(
-            'Title',
+            data.description,
           ),
-          SizedBox(
-            height: 8.0,
-          ),
-          Text(
-            'Title',
-          ),
-          SizedBox(
+         const SizedBox(
             height: 30.0,
           ),
         ],

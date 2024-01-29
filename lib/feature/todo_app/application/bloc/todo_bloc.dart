@@ -75,7 +75,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   Future<void> _updateData(TodoModel data) async {
-   // print(data.id);
+    // print(data.id);
     await database.rawUpdate(
       'UPDATE Todos SET title = ?, description = ? WHERE id = ?',
       [data.title, data.description, data.id],
