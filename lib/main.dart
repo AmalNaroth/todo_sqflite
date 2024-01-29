@@ -7,26 +7,33 @@ import 'package:path/path.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final Future<Database> database = openDatabase(
-    join(await getDatabasesPath(), "todo_database.db"),
-    onCreate: (db, version) {
-      return db.execute(
-          "CREATE TABLE todos(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, status INTEGER)");
-    },
+
+  var databasePath = await getDatabasesPath();
+  String path = join(databasePath, 'todo_database.db');
+
+  Database database = await openDatabase(
+    path,
     version: 1,
+    onCreate: (db, version) {
+      db.execute(
+          'CREATE TABLE Todos(id INTEGER PRIMARY KEY, title TEXT, description TEXT)');
+    },
   );
 
   bool _databaseExist = await databaseExists(
     join(await getDatabasesPath(), "todo_database.db"),
   );
-  runApp(MyApp(
-    database: database,
-    databaseExist: _databaseExist,
-  ));
+
+  runApp(
+    MyApp(
+      database: database,
+      databaseExist: _databaseExist,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  final Future<Database> database;
+  final Database database;
   final bool databaseExist;
 
   const MyApp({Key? key, required this.database, required this.databaseExist})
@@ -37,24 +44,21 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => TodoBloc(database, databaseExist),
+          create: (context) => TodoBloc(database: database),
         ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch(
-            primarySwatch: Colors.deepPurple,
-          ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.purple,
-          ),
-          useMaterial3:
-              false, // Commented out because useMaterial3 is not available in all Flutter versions
-        ),
-        home: TodolistScreen(database: database,
-        databaseExist: databaseExist),
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Colors.deepPurple,
+            ),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.purple,
+            ),
+            useMaterial3: false),
+        home: const TodolistScreen(),
       ),
     );
   }
