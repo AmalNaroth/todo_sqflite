@@ -24,6 +24,6 @@ class UpdateTodoEvent extends TodoEvent {
 //delate todo
 
 class DeleteTodoEvent extends TodoEvent {
-  String id;
+  int id;
   DeleteTodoEvent({required this.id});
 }

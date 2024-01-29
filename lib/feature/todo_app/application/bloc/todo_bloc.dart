@@ -8,88 +8,81 @@ part 'todo_event.dart';
 part 'todo_state.dart';
 
 class TodoBloc extends Bloc<TodoEvent, TodoState> {
-  final Future<Database> database;
-  final bool databaseExist;
-  TodoBloc(this.database, this.databaseExist) : super(TodoInitialState()) {
-    on<CreateNewTodoEvent>(
-      (event, emit) async {
-       // debugPrint("workingg!!!!!!!!!!!!");
-        try {
-          emit(
-            TodoLoadingState(),
-          );
-          if (!databaseExist) {
-            emit(
-              TodoErrorState(message: "Database does not exist"),
-            );
+  final Database database;
 
-           // print(event.modelData.description);
-
-            await addData(event.modelData);
-            final List<TodoModel> data = await readData();
-            emit(
-              TodoLoadedState(todoListData: data),
-            );
-          }
-         // debugPrint("Complete!!!!!!");
-        } catch (e) {
-          emit(
-            TodoErrorState(
-              message: e.toString(),
-            ),
-          );
-        }
-      },
-    );
-
-    on<InitialTodoEvent>(
-      (event, emit) async {
-        emit(
-          TodoLoadingState(),
-        );
-        try {
-          final List<TodoModel> data = await readData();
-          emit(
-            TodoLoadedState(todoListData: data),
-          );
-        } catch (e) {
-          emit(
-            TodoErrorState(
-              message: e.toString(),
-            ),
-          );
-        }
-      },
-    );
-  }
-  Future<List<TodoModel>> readData() async {
-    final Database db = await database;
-    final List<Map<String, dynamic>> dbData = await db.query("todos");
-    return dbData
-        .map(
-          (e) => TodoModel.formMap(e),
-        )
-        .toList();
+  TodoBloc({required this.database}) : super(TodoInitialState()) {
+    on<CreateNewTodoEvent>(_onCreateNewTodoEvent);
+    on<InitialTodoEvent>(_onInitialTodoEvent);
+    on<UpdateTodoEvent>(_onUpdateTodoEvent);
+    on<DeleteTodoEvent>(_onDeleteTodoEvent);
   }
 
-  Future<void> addData(TodoModel data) async {
-    final Database db = await database;
-    await db.insert('todos', data.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+  Future<void> _onCreateNewTodoEvent(
+      CreateNewTodoEvent event, Emitter<TodoState> emit) async {
+    try {
+      emit(TodoLoadingState());
+      await _addData(event.modelData);
+      final List<TodoModel> data = await _readData();
+      emit(TodoLoadedState(todoListData: data));
+    } catch (e) {
+      emit(TodoErrorState(message: e.toString()));
+    }
   }
 
-  Future<void> updateData(TodoModel data) async {
-    final Database db = await database;
-    await db.update(
-      "todos",
-      data.toMap(),
-      where: 'id = ?',
-      whereArgs: [data.id],
+  Future<void> _onInitialTodoEvent(
+      InitialTodoEvent event, Emitter<TodoState> emit) async {
+    emit(TodoLoadingState());
+    try {
+      final List<TodoModel> data = await _readData();
+      emit(TodoLoadedState(todoListData: data));
+    } catch (e) {
+      emit(TodoErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateTodoEvent(
+      UpdateTodoEvent event, Emitter<TodoState> emit) async {
+    try {
+      emit(TodoLoadingState());
+      await _updateData(event.modelData);
+      emit(TodoLoadedState(todoListData: await _readData()));
+    } catch (e) {
+      emit(TodoErrorState(message: e.toString()));
+    }
+  }
+
+  Future<void> _onDeleteTodoEvent(
+      DeleteTodoEvent event, Emitter<TodoState> emit) async {
+    try {
+      emit(TodoLoadingState());
+      await _deleteData(event.id);
+      emit(TodoLoadedState(todoListData: await _readData()));
+    } catch (e) {
+      emit(TodoErrorState(message: e.toString()));
+    }
+  }
+
+  Future<List<TodoModel>> _readData() async {
+    final List<Map<String, Object?>> value =
+        await database.rawQuery('SELECT * FROM Todos');
+    return value.map((e) => TodoModel.formMap(e)).toList();
+  }
+
+  Future<void> _addData(TodoModel data) async {
+    await database.rawInsert(
+        'INSERT INTO Todos(title, description) VALUES(?, ?)',
+        [data.title, data.description]);
+  }
+
+  Future<void> _updateData(TodoModel data) async {
+   // print(data.id);
+    await database.rawUpdate(
+      'UPDATE Todos SET title = ?, description = ? WHERE id = ?',
+      [data.title, data.description, data.id],
     );
   }
 
-  Future<void> deleteData(int id) async {
-    final Database db = await database;
-    await db.delete('todos', where: 'id = ?', whereArgs: [id]);
+  Future<void> _deleteData(int id) async {
+    await database.rawDelete('DELETE FROM Todos WHERE id = ?', [id]);
   }
 }
